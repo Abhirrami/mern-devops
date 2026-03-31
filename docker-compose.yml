@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: clinic-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+    container_name: clinic-backend
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      CLIENT_URL: http://localhost:5173
+      MONGO_URI: mongodb://mongo:27017/clinic_workflow
+      JWT_SECRET: change_this_secret
+      JWT_EXPIRES_IN: 7d
+      ADMIN_NAME: System Admin
+      ADMIN_EMAIL: admin@clinic.com
+      ADMIN_PASSWORD: Admin@123
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:5000/api
+        VITE_SOCKET_URL: http://localhost:5000
+    container_name: clinic-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  mongo_data:
