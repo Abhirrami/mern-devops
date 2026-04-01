@@ -6,6 +6,7 @@ pipeline {
   }
 
   stages {
+
     stage('Clone repo') {
       steps {
         checkout scm
@@ -15,10 +16,10 @@ pipeline {
     stage('Install dependencies') {
       steps {
         dir('backend') {
-          bat 'call npm install'
+          sh 'npm install'
         }
         dir('frontend') {
-          bat 'call npm install'
+          sh 'npm install'
         }
       }
     }
@@ -26,7 +27,7 @@ pipeline {
     stage('Build frontend') {
       steps {
         dir('frontend') {
-          bat 'call npm run build'
+          sh 'npm run build'
         }
       }
     }
@@ -35,29 +36,29 @@ pipeline {
       steps {
         dir('backend') {
           sh '''
-node -e "require('./src/app'); console.log('Backend app bootstrapped successfully')"
-'''
+          node -e "require('./src/app'); console.log('Backend app bootstrapped successfully')"
+          '''
         }
       }
     }
 
     stage('Build Docker images') {
       steps {
-        bat 'docker compose build'
+        sh 'docker compose build'
       }
     }
 
     stage('Deploy containers') {
       steps {
-        bat 'docker compose down'
-        bat 'docker compose up -d'
+        sh 'docker compose down || true'
+        sh 'docker compose up -d'
       }
     }
   }
 
   post {
     always {
-      bat 'docker compose ps'
+      sh 'docker compose ps'
     }
   }
 }
