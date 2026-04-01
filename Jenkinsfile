@@ -34,7 +34,9 @@ pipeline {
     stage('Run backend smoke check') {
       steps {
         dir('backend') {
-          bat 'node -e "require(''./src/app''); console.log(''Backend app bootstrapped successfully'')"'
+          sh '''
+node -e "require('./src/app'); console.log('Backend app bootstrapped successfully')"
+'''
         }
       }
     }
