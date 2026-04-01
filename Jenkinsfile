@@ -25,12 +25,16 @@ pipeline {
     }
 
     stage('Build frontend') {
-      steps {
-        dir('frontend') {
-          sh 'npm run build'
-        }
-      }
+  steps {
+    dir('frontend') {
+      sh '''
+      npm install
+      chmod +x node_modules/.bin/vite
+      npm run build
+      '''
     }
+  }
+}
 
     stage('Run backend smoke check') {
       steps {
